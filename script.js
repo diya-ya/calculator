@@ -36,7 +36,10 @@ let left,right,operator;
 const numbers=document.querySelectorAll(".number")
 numbers.forEach(button=>{
     button.addEventListener("click",()=>{
-        sendToDisplay(button.textContent);
+        if(equalled){
+            clearDisplay();
+            equalled=false;
+        }
         if(left==undefined){ 
             left=button.textContent;
         }
@@ -50,6 +53,7 @@ numbers.forEach(button=>{
         else{
             right+=button.textContent;
         }
+        sendToDisplay(button.textContent);
     })
 })
 
@@ -70,15 +74,18 @@ operators.forEach(button=>{
             const ans=operate(operator,Number(left),Number(right));
             if (ans === undefined) return;
             display.textContent='';
-            sendToDisplay(String(ans));
+            sendToDisplay(ans);
             left=ans;
             right=undefined;
             operator=button.textContent;
+            pointRight=false;
         }
+        equalled=false;
         sendToDisplay(button.textContent);
     })
 })
 
+let equalled=false;
 const equalsKey = document.querySelector("#equals");
 equalsKey.addEventListener("click", () => {
    if(right==undefined){
@@ -90,16 +97,19 @@ equalsKey.addEventListener("click", () => {
     const ans=operate(operator,Number(left),Number(right));
     if (ans === undefined) return;
     display.textContent='';
-    sendToDisplay(String(ans));
+    sendToDisplay(ans);
     left=ans;
     right=undefined;
     operator=undefined;
+    pointRight=false;
    }
+   equalled=true;
 });
 
 const display = document.querySelector(".display");
 function sendToDisplay(text) {
-    const displayText=String(text);
+    let displayStr=(typeof text==="number")?Number(text.toFixed(10)):String(text);
+    const displayText=String(displayStr);
     if (displayText.length <= 13) {
         display.textContent += displayText;
     } else {
@@ -112,4 +122,63 @@ function clearDisplay(){
     left=undefined;
     right=undefined;
     operator=undefined;
+    pointLeft=false;
+    pointRight=false;
 }
+
+let pointLeft=false,pointRight=false;
+const pointKey = document.querySelector("#point");
+pointKey.addEventListener("click", () => {
+   if(equalled){
+        clearDisplay();
+        equalled=false;
+   }
+   if(left==undefined && pointLeft==false && operator==undefined){
+    left='0.';
+    sendToDisplay('.');
+    pointLeft=true;
+   }
+   else if(pointLeft==false && operator==undefined){
+    left+='.';
+    sendToDisplay('.');
+    pointLeft=true;
+   }
+   else if(pointRight==false && right==undefined && operator!=undefined){
+    right='0.';
+    sendToDisplay('.');
+    pointRight=true;
+   }
+   else if(pointRight==false && operator!=undefined){
+    right+='.';
+    sendToDisplay('.');
+    pointRight=true;
+   }
+});
+
+const backspaceKey = document.querySelector("#backspace");
+backspaceKey.addEventListener("click", () => {
+    if (display.textContent.length === 0) return;
+
+    const lastChar = display.textContent.slice(-1);
+    display.textContent = display.textContent.slice(0, -1);
+
+    if (right !== undefined) {
+        if (right.length === 1) {
+            right = undefined;
+            pointRight = false;
+        } else {
+            if (lastChar === '.') pointRight = false;
+            right = right.slice(0, -1);
+        }
+    } else if (operator !== undefined) {
+        operator = undefined;
+    } else if (left !== undefined) {
+        if (left.length === 1) {
+            left = undefined;
+            pointLeft = false;
+        } else {
+            if (lastChar === '.') pointLeft = false;
+            left = left.slice(0, -1);
+        }
+    }
+});
