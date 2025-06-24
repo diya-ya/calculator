@@ -182,3 +182,34 @@ backspaceKey.addEventListener("click", () => {
         }
     }
 });
+
+document.addEventListener("keydown", (event) => {
+    const key = event.key;
+    if (key >= '0' && key <= '9') {
+        document.querySelectorAll(".number").forEach(button => {
+            if (button.textContent === key) button.click();
+        });
+    } 
+    else if (["+", "-", "*", "/"].includes(key)) {
+        const opId = {
+            "+": "add",
+            "-": "subtract",
+            "*": "multiply",
+            "/": "divide"
+        }[key];
+        document.querySelector(`.operator#${opId}`)?.click();
+    } 
+    else if (key === "Enter" || key === "=") {
+        event.preventDefault(); 
+        document.querySelector("#equals")?.click();
+    } 
+    else if (key === ".") {
+        document.querySelector("#point")?.click();
+    } 
+    else if (key === "Backspace") {
+        document.querySelector("#backspace")?.click();
+    }
+    else if (key === "Escape") {
+        clearDisplay();
+    }
+});
